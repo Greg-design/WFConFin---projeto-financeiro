@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace WFConFin.Models
 {
@@ -22,6 +24,7 @@ namespace WFConFin.Models
         }
 
         // relacionamento entity framework
+        [JsonIgnore]
         public Estado Estado { get; set; }
 
     }

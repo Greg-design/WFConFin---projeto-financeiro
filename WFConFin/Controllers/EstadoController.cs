@@ -107,5 +107,107 @@ namespace WFConFin.Controllers
             }
 
         }
+
+        // Encontrar um único objeto estado
+        [HttpGet("{sigla}")]
+        public IActionResult GetEstado([FromRoute] string sigla)
+        {
+            try
+            {
+                var estado = _context.Estado.Find(sigla);
+
+                if (estado.Sigla == sigla && !string.IsNullOrEmpty(estado.Sigla))
+                {
+                    return Ok(estado);
+                }
+                else
+                {
+                    return NotFound("Erro, estado não existe.");
+                }
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"Erro, consulta de estado. Exceção: {e.Message}");
+            }
+
+        }
+
+        // Encontrar por busca o objeto estado, tanto em sigla quanto em nome
+        [HttpGet("Pesquisa")]
+        public IActionResult GetEstadoPesquisa([FromQuery] string valor)
+        {
+            try
+            {
+                //Query Criteria - uma Query pra filtrar o conteúdo tanto no campo de Sigla quanto no Nome
+                var lista = from objeto in _context.Estado.ToList()
+                            where objeto.Sigla.ToUpper().Contains(valor.ToUpper())
+                            || objeto.Nome.ToUpper().Contains(valor.ToUpper())
+                            select objeto;
+
+                /*
+                    outra forma com Entity:
+                    
+                    lista = _context.Estado
+                            .Where(objetos => objetos.Sigla.ToUpper().Contains(valor.ToUpper())
+                                || objetos.Nome.ToUpper().Contains(valor.ToUpper())                      
+                             )
+                            .ToList();
+                */
+
+                return Ok(lista);
+
+                /*
+                  No banco de dados seria assim abaixo...
+
+                  select * from estado where upper(sigla) like upper('%valor%') or upper(nome) like upper('%valor%') 
+                */
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"Erro, pesquisa de estado. Exceção: {e.Message}");
+            }
+
+        }
+
+        // Encontrar por busca o objeto estado Com Paginação
+        [HttpGet("Paginacao")]
+        public IActionResult GetEstadoPaginacao([FromQuery] string valor, int skip, int take, bool ordemDesc)
+        {
+            try
+            {
+                //Query Criteria - uma Query pra filtrar o conteúdo tanto no campo de Sigla quanto no Nome
+                var lista = from objeto in _context.Estado.ToList()
+                            where objeto.Sigla.ToUpper().Contains(valor.ToUpper())
+                            || objeto.Nome.ToUpper().Contains(valor.ToUpper())
+                            select objeto;
+
+                if (ordemDesc)
+                {
+                    lista = from objeto in lista
+                            orderby objeto.Nome descending
+                            select objeto;
+                }
+                else
+                {
+                    lista = from objeto in lista
+                            orderby objeto.Nome ascending
+                            select objeto;
+                }
+
+                var quantidade = lista.Count();
+
+                lista = lista.Skip(skip).Take(take).ToList();
+
+                var paginacaoResponse = new PaginacaoResponse<Estado>(lista, quantidade, skip, take);
+
+                    return Ok(paginacaoResponse);
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"Erro, pesquisa de estado. Exceção: {e.Message}");
+            }
+
+        }
     }
 }
