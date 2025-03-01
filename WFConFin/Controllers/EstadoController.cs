@@ -16,7 +16,7 @@ namespace WFConFin.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetEstados()
+        public async Task<IActionResult> GetEstados()
         {
             try
             {
@@ -30,12 +30,12 @@ namespace WFConFin.Controllers
         }
 
         [HttpPost]
-        public IActionResult PostEstado([FromBody] Estado estado)
+        public async Task<IActionResult> PostEstado([FromBody] Estado estado)
         {
             try
             {
-                _context.Estado.Add(estado);
-                var valor = _context.SaveChanges();
+                await _context.Estado.AddAsync(estado);
+                var valor = await _context.SaveChangesAsync();
                 if(valor == 1)
                 {
                     return Ok("Sucesso, estado incluído.");
@@ -52,12 +52,12 @@ namespace WFConFin.Controllers
         }
 
         [HttpPut]
-        public IActionResult PutEstado([FromBody] Estado estado)
+        public async Task<IActionResult> PutEstado([FromBody] Estado estado)
         {
             try
             {
                 _context.Estado.Update(estado);
-                var valor = _context.SaveChanges();
+                var valor = await _context.SaveChangesAsync();
                 if (valor == 1)
                 {
                     return Ok("Sucesso, estado alterado.");
@@ -75,16 +75,16 @@ namespace WFConFin.Controllers
         }
 
         [HttpDelete("{sigla}")]
-        public IActionResult DeleteEstado([FromRoute] string sigla)
+        public async Task<IActionResult> DeleteEstado([FromRoute] string sigla)
         {
             try
             {
-                var estado = _context.Estado.Find(sigla);
+                var estado = await _context.Estado.FindAsync(sigla);
 
                 if(estado.Sigla == sigla && !string.IsNullOrEmpty(estado.Sigla))
                 {
                     _context.Estado.Remove(estado);
-                    var valor = _context.SaveChanges();
+                    var valor = await _context.SaveChangesAsync();
 
                     if(valor == 1)
                     {
@@ -110,13 +110,13 @@ namespace WFConFin.Controllers
 
         // Encontrar um único objeto estado
         [HttpGet("{sigla}")]
-        public IActionResult GetEstado([FromRoute] string sigla)
+        public async Task<IActionResult> GetEstado([FromRoute] string sigla)
         {
             try
             {
-                var estado = _context.Estado.Find(sigla);
+                var estado = await _context.Estado.FindAsync(sigla);
 
-                if (estado.Sigla == sigla && !string.IsNullOrEmpty(estado.Sigla))
+                if (estado != null && !string.IsNullOrEmpty(estado.Sigla))
                 {
                     return Ok(estado);
                 }
@@ -124,18 +124,16 @@ namespace WFConFin.Controllers
                 {
                     return NotFound("Erro, estado não existe.");
                 }
-
             }
             catch (Exception e)
             {
                 return BadRequest($"Erro, consulta de estado. Exceção: {e.Message}");
             }
-
         }
 
         // Encontrar por busca o objeto estado, tanto em sigla quanto em nome
         [HttpGet("Pesquisa")]
-        public IActionResult GetEstadoPesquisa([FromQuery] string valor)
+        public async Task<IActionResult> GetEstadoPesquisa([FromQuery] string valor)
         {
             try
             {
@@ -172,7 +170,7 @@ namespace WFConFin.Controllers
 
         // Encontrar por busca o objeto estado Com Paginação
         [HttpGet("Paginacao")]
-        public IActionResult GetEstadoPaginacao([FromQuery] string valor, int skip, int take, bool ordemDesc)
+        public async Task<IActionResult> GetEstadoPaginacao([FromQuery] string valor, int skip, int take, bool ordemDesc)
         {
             try
             {

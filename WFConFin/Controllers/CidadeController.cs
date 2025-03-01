@@ -9,6 +9,7 @@ namespace WFConFin.Controllers
     [Route("api/[controller]")]
     public class CidadeController : Controller
     {
+        // nosso context de banco de dados
         private readonly WFConFinDbContext _context;
 
         public CidadeController(WFConFinDbContext context)
@@ -17,7 +18,7 @@ namespace WFConFin.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCidades()
+        public async Task<IActionResult> GetCidades()
         {
             try
             {
@@ -32,12 +33,12 @@ namespace WFConFin.Controllers
         }
 
         [HttpPost]
-        public IActionResult PostCidade([FromBody] Cidade cidade)
+        public async Task<IActionResult> PostCidade([FromBody] Cidade cidade)
         {
             try
             {
-                _context.Cidade.Add(cidade);
-                var valor = _context.SaveChanges();
+                await _context.Cidade.AddAsync(cidade);
+                var valor = await _context.SaveChangesAsync();
 
                 if(valor == 1)
                 {
@@ -50,18 +51,17 @@ namespace WFConFin.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest($"Erro na inclusão de cidade. Exceção: {e.Message}");
+                return BadRequest($"Erro na inclusão de cidade. Exceção: {e.Message}. Inner Exception: {e.InnerException?.Message}");
             }
-
         }
 
         [HttpPut]
-        public IActionResult PutCidade([FromBody] Cidade cidade)
+        public async Task<IActionResult> PutCidade([FromBody] Cidade cidade)
         {
             try
             {
                 _context.Cidade.Update(cidade);
-                var valor = _context.SaveChanges();
+                var valor = await _context.SaveChangesAsync();
 
                 if (valor == 1)
                 {
@@ -80,17 +80,17 @@ namespace WFConFin.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteCidade([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteCidade([FromRoute] Guid id)
         {
             try
             {
-                Cidade cidade = _context.Cidade.Find(id);
+                Cidade cidade = await _context.Cidade.FindAsync(id);
 
                 if(cidade != null)
                 {
                     _context.Cidade.Remove(cidade);
 
-                    var valor = _context.SaveChanges();
+                    var valor = await _context.SaveChangesAsync();
 
                     if (valor == 1)
                     {
@@ -116,11 +116,11 @@ namespace WFConFin.Controllers
 
         // pegar uma única cidade
         [HttpGet("{id}")]
-        public IActionResult GetCidade([FromRoute] Guid id)
+        public async Task<IActionResult> GetCidade([FromRoute] Guid id)
         {
             try
             {
-                Cidade cidade = _context.Cidade.Find(id);
+                Cidade cidade = await _context.Cidade.FindAsync(id);
 
                 if (cidade != null)
                 {
@@ -141,7 +141,7 @@ namespace WFConFin.Controllers
 
         // Encontrar por busca o objeto cidade
         [HttpGet("Pesquisa")]
-        public IActionResult GetCidadePesquisa([FromQuery] string valor)
+        public async Task<IActionResult> GetCidadePesquisa([FromQuery] string valor)
         {
             try
             {
@@ -178,7 +178,7 @@ namespace WFConFin.Controllers
 
         // Encontrar por busca o objeto cidade Com Paginação
         [HttpGet("Paginacao")]
-        public IActionResult GetCidadePaginacao([FromQuery] string valor, int skip, int take, bool ordemDesc)
+        public async Task<IActionResult> GetCidadePaginacao([FromQuery] string valor, int skip, int take, bool ordemDesc)
         {
             try
             {
