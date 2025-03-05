@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WFConFin.Data;
 using WFConFin.Models;
@@ -7,6 +8,7 @@ namespace WFConFin.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CidadeController : Controller
     {
         // nosso context de banco de dados
@@ -33,6 +35,7 @@ namespace WFConFin.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Gerente,Empregado")]
         public async Task<IActionResult> PostCidade([FromBody] Cidade cidade)
         {
             try
@@ -56,6 +59,7 @@ namespace WFConFin.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Gerente,Empregado")]
         public async Task<IActionResult> PutCidade([FromBody] Cidade cidade)
         {
             try
@@ -80,6 +84,7 @@ namespace WFConFin.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Gerente")]
         public async Task<IActionResult> DeleteCidade([FromRoute] Guid id)
         {
             try

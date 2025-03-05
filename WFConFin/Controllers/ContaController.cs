@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WFConFin.Data;
 using WFConFin.Models;
@@ -7,6 +8,7 @@ namespace WFConFin.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ContaController : Controller
     {
         private readonly WFConFinDbContext _context;
@@ -27,11 +29,12 @@ namespace WFConFin.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest($"Erro na listagem de contas. Exceçaõ: {e.Message}");
+                return BadRequest($"Erro na listagem de contas. Exceção: {e.Message}");
             }
         }
 
         [HttpPost]
+        [Authorize(Roles = "Gerente,Empregado")]
         public async Task<IActionResult> PostConta([FromBody] Conta conta)
         {
             try
@@ -56,6 +59,7 @@ namespace WFConFin.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Gerente,Empregado")]
         public async Task<IActionResult> PutConta([FromBody] Conta conta)
         {
             try
@@ -75,11 +79,12 @@ namespace WFConFin.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest($"Erro na alteração da conta. Exceçaõ: {e.Message}");
+                return BadRequest($"Erro na alteração da conta. Exceção: {e.Message}");
             }
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Gerente")]
         public async Task<IActionResult> DeleteConta([FromRoute] Guid id)
         {
             try
