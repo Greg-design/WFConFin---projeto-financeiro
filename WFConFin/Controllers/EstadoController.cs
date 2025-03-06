@@ -175,15 +175,20 @@ namespace WFConFin.Controllers
 
         // Encontrar por busca o objeto estado Com Paginação
         [HttpGet("Paginacao")]
-        public async Task<IActionResult> GetEstadoPaginacao([FromQuery] string valor, int skip, int take, bool ordemDesc)
+        public async Task<IActionResult> GetEstadoPaginacao([FromQuery] string? valor, int skip, int take, bool ordemDesc)
         {
             try
             {
                 //Query Criteria - uma Query pra filtrar o conteúdo tanto no campo de Sigla quanto no Nome
                 var lista = from objeto in _context.Estado.ToList()
-                            where objeto.Sigla.ToUpper().Contains(valor.ToUpper())
-                            || objeto.Nome.ToUpper().Contains(valor.ToUpper())
                             select objeto;
+
+                if (!String.IsNullOrEmpty(valor)) {
+                    lista = from objeto in lista
+                        where objeto.Sigla.ToUpper().Contains(valor.ToUpper())
+                        || objeto.Nome.ToUpper().Contains(valor.ToUpper())
+                            select objeto;
+                }
 
                 if (ordemDesc)
                 {
@@ -200,7 +205,7 @@ namespace WFConFin.Controllers
 
                 var quantidade = lista.Count();
 
-                lista = lista.Skip(skip).Take(take).ToList();
+                lista = lista.Skip((skip - 1) * take).Take(take).ToList();
 
                 var paginacaoResponse = new PaginacaoResponse<Estado>(lista, quantidade, skip, take);
 

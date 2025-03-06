@@ -164,15 +164,19 @@ namespace WFConFin.Controllers
 
         // Encontrar por busca o objeto Conta Com Paginação
         [HttpGet("Paginacao")]
-        public async Task<IActionResult> GetContaPaginacao([FromQuery] string valor, int skip, int take, bool ordemDesc)
+        public async Task<IActionResult> GetContaPaginacao([FromQuery] string? valor, int skip, int take, bool ordemDesc)
         {
             try
             {
                 //Query Criteria - uma Query pra filtrar o conteúdo tanto no campo de Nome quanto no Descrição
                 var lista = from objeto in _context.Conta.Include(o => o.Pessoa).ToList()
-                            where objeto.Descricao.ToUpper().Contains(valor.ToUpper())
-                            || objeto.Pessoa.Nome.ToUpper().Contains(valor.ToUpper())
                             select objeto;
+                if (!String.IsNullOrEmpty(valor)) {
+                    lista = from objeto in lista
+                         where objeto.Descricao.ToUpper().Contains(valor.ToUpper())
+                         || objeto.Pessoa.Nome.ToUpper().Contains(valor.ToUpper())
+                            select objeto;
+                }
 
                 if (ordemDesc)
                 {
@@ -189,7 +193,7 @@ namespace WFConFin.Controllers
 
                 var quantidade = lista.Count();
 
-                lista = lista.Skip(skip).Take(take).ToList();
+                lista = lista.Skip((skip - 1) * take).Take(take).ToList();
 
                 var paginacaoResponse = new PaginacaoResponse<Conta>(lista, quantidade, skip, take);
 
